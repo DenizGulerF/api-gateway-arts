@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: api.gateway
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              "[/**]":
+                allowed-origins:
+                  - "http://localhost:5173"
+                  - "http://localhost:8080"
+                allowed-methods:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+                allowed-headers:
+                  - "*"
+                exposed-headers:
+                  - Authorization
+                allow-credentials: true
+          default-filters:
+            - PreserveHostHeader
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin RETAIN_FIRST
+          routes:
+            - id: auth
+              uri: http://localhost:8080
+              predicates:
+                - Path=/api/**
+              filters:
+                - SetRequestHeader=Content-Type, application/json
+server:
+  port: 8081
+security:
+  jwt:
+    # Replace with your real shared secret (min ~32 chars for HS256)
+    secret: dGhpc2lzbm90YXJlYWxwcm9kdWN0a2V5dGhpc2lzbm90YXJlYWxwcm9kdWN0a2V5
+    base64: true
+    enabled: true
+logging:
+  level:
+    denizgulerf.github.io.api.gateway.security.JwtAuthenticationGlobalFilter: DEBUG
